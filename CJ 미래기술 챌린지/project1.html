@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <title>Kakao 지도 시작하기</title>
+</head>
+
+<body>
+  <div id="map" style="width:2350px;height:1100px;"></div>
+  <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=4d1a512f046159a2193c2f3a287a8c24"></script>
+  <script type="text/javascript">
+    var input = prompt("Driver X");
+    var container = document.getElementById('map');
+    var options = {
+      center: new kakao.maps.LatLng(37.562, 126.973),
+      level: 7
+    };
+    var map = new kakao.maps.Map(container, options);
+
+    let content2 = null;
+    let xmlhttp = new XMLHttpRequest();
+    xmlhttp.open("GET", "/result.txt", false);
+    xmlhttp.send();
+    //파일 로드 성공 시 파일에서 읽은 텍스트를 content에 담음
+    if (xmlhttp.status == 200) {
+      content2 = xmlhttp.responseText;
+    }
+
+        var lines  = content2.split("\n");
+        console.log(lines);
+        var arr = new Array();
+        var check = false;
+        var linePath= new Array();
+        var cnt=0;
+        for (var i = 0; i <lines.length; i++)
+        {
+          arr[i] = lines[i].split("\t");
+          if (arr[i][3] != "배송지" && !check &&
+          arr[i][0].substr(6)==input)
+          {  //출발지
+            var markerPosition = new kakao.maps.LatLng(arr[i][4], arr[i][5]);
+            var marker = new kakao.maps.Marker({ position: markerPosition });
+            marker.setMap(map);
+            var content = '<div class="label"><span class="left"></span><span class ="center">' + arr[i][1] + '</span><span class="right"></span></div>';
+              var customOverlay = new kakao.maps.CustomOverlay({
+                position: markerPosition, content: content
+              });
+              customOverlay.setMap(map);
+            check = true;
+          }
+          else if(arr[i][3] != "배송지" && check &&
+          arr[i][0].substr(6)==input)
+          {  //도착지
+            var markerPosition = new kakao.maps.LatLng(arr[i][4], arr[i][5]);
+            var marker = new kakao.maps.Marker({ position: markerPosition });
+            marker.setMap(map);
+            var content = '<div class="label"><span class="left"></span><span class ="center">' + arr[i][1] +'<br>' + arr[i][0] + '</span><span class="right"></span></div>';
+              var customOverlay = new kakao.maps.CustomOverlay({
+                position: markerPosition, content: content
+              });
+              customOverlay.setMap(map);
+            check = false;
+          }
+          else if(arr[i][3] == "배송지" && check)
+          {  //배송지
+            if(input == arr[i][0].substr(6))
+            {
+              //console.log(arr[i]);
+            linePath[cnt++] = [new kakao.maps.LatLng(arr[i-1][4], arr[i-1][5]),
+             new kakao.maps.LatLng(arr[i][4], arr[i][5])];
+             var im=i;
+              var markerPosition = new kakao.maps.LatLng(arr[i][4], arr[i][5]);
+              var ImageSrc = "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png";
+              var ImageSize = new kakao.maps.Size(15, 26);
+              var markerImage = new kakao.maps.MarkerImage(ImageSrc, ImageSize);
+              var marker = new kakao.maps.Marker({ position: markerPosition, image: markerImage});
+              marker.setMap(map);
+              var content = '<div class="label"><span class="left"></span><span class ="center">' + arr[i][2] + '</span><span class="right"></span></div>';
+              var customOverlay = new kakao.maps.CustomOverlay({
+                position: markerPosition, content: content
+              });
+              customOverlay.setMap(map);
+
+            }
+          }
+        }
+
+        linePath[cnt++] = [new kakao.maps.LatLng(arr[im][4], arr[im][5]),
+         new kakao.maps.LatLng(arr[im+1][4], arr[im+1][5])];
+
+
+        for(var i=0; i<linePath.length; i++){
+          console.log(linePath[i]);
+        }
+        var polyline = new kakao.maps.Polyline({
+        path: linePath, // 선을 구성하는 좌표배열 입니다
+        strokeWeight: 3, // 선의 두께 입니다
+        strokeColor: 'red', // 선의 색깔입니다
+        strokeOpacity: 0.7, // 선의 불투명도 입니다 1에서 0 사이의 값이며 0에 가까울수록 투명합니다
+        strokeStyle: 'solid' // 선의 스타일입니다
+        });
+
+
+        polyline.setMap(map);
+
+  </script>
+</body>
+
+</html>

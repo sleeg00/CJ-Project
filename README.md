@@ -24,6 +24,9 @@ Preview
 
 
 
-<img width="459" alt="image" src="https://user-images.githubusercontent.com/96710732/230719638-beeaf7b4-7ddf-49b9-add2-60298b44db13.png">
+<div style="text-align:center;">
+  <img src="https://user-images.githubusercontent.com/96710732/230719638-beeaf7b4-7ddf-49b9-add2-60298b44db13.png" width="600" alt="image">
+</div>
+
 
 
